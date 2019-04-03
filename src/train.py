@@ -7,11 +7,11 @@ from network import ConvNet
 from solver import Solver
 
 def save_obj(obj, name ):
-    with open('p1/data/'+ name + '.pkl', 'wb') as f:
+    with open('../data/'+ name + '.pkl', 'wb') as f:
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
 
 def load_obj(name ):
-    with open('p1/data/' + name + '.pkl', 'rb') as f:
+    with open('../data/' + name + '.pkl', 'rb') as f:
         return pickle.load(f)
 
 def load_fashion_mnist(flatten=False):
@@ -48,7 +48,7 @@ def load_fashion_mnist(flatten=False):
 
 def train():
     # load data
-    if os.path.exists("p1/data/MNIST.pkl"):
+    if os.path.exists("../data/MNIST.pkl"):
         data = load_obj("MNIST")
         print("data loaded!")
     else:
@@ -64,7 +64,7 @@ def train():
     # intialize solver
     print("initialize solver")
     solver = Solver(model, data, update_rule='sgd',
-                    optim_config={'learning_rate': 1e-2},
+                    optim_config={'learning_rate': 1e-4},
                     lr_decay=1.0, num_epochs=10,
                     batch_size=16, print_every=1)
 
