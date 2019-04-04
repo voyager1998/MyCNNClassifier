@@ -3,7 +3,8 @@ from sklearn.datasets import fetch_openml
 import os
 import pickle
 
-from network import ConvNet
+# from network import ConvNet
+from conv_2_network import ConvNet
 from solver import Solver
 
 def save_obj(obj, name ):
