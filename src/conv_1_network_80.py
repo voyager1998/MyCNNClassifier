@@ -31,18 +31,15 @@ class ConvNet(object):
         # Conv1
         self.params['W1'] = np.random.randn(6, C, 5, 5) * 0.01
         self.params['b1'] = np.zeros(6)
-        # Max pooling, output: N * 6 * H/2  * W/2
+        # # Conv2
+        # self.params['W2'] = np.random.randn(16, C, 5, 5)
+        # self.params['b2'] = np.zeros(16)
 
-        # Conv2
-        self.params['W2'] = np.random.randn(16, C, 5, 5) * 0.001
-        self.params['b2'] = np.zeros(16) # output: N * 16 * H/2  * W/2
-        # Max pooling, output: N * 16 * H/4  * W/4
-
-        # relu
         # fc1
-        D = int(16 * H/2  * W/2)
-        self.params['W3'] = np.random.randn(D, num_classes) * 0.01
-        self.params['b3'] = np.zeros(num_classes)
+        # temp = int(6 * H * W)
+        temp = int(6 * H / 2 * W / 2)
+        self.params['W2'] = np.random.randn(temp, num_classes) * 0.01
+        self.params['b2'] = np.zeros(num_classes)
 
         #######################################################################
         #                         END OF YOUR CODE                            #
@@ -60,7 +57,6 @@ class ConvNet(object):
 
         W1, b1 = self.params['W1'], self.params['b1']
         W2, b2 = self.params['W2'], self.params['b2']
-        W3, b3 = self.params['W3'], self.params['b3']
 
         #######################################################################
         # TODO: Implement the forward pass for the convolutional neural net,  #
@@ -71,23 +67,14 @@ class ConvNet(object):
         filter_size = W1.shape[2]
         conv_param = {'stride': 1, 'pad': (filter_size - 1) // 2}
         out1, cache1 = conv_forward(X, W1, b1, conv_param)
-
+        
         # Max pooling, output: N * 6 * H/2  * W/2
         pool_param = {'pool_height': 2, 'pool_width': 2, 'stride': 2}
         out2, cache2 = max_pool_forward(out1, pool_param)
         
-        # Conv2
-        filter_size = W2.shape[2]
-        conv_param = {'stride': 1, 'pad': (filter_size - 1) // 2}
-        out4, cache4 = conv_forward(out2, W2, b2, conv_param)
-
-        # # Max pooling, output: N * 16 * H/4  * W/4
-        # pool_param = {'pool_height': 2, 'pool_width': 2, 'stride': 2}
-        # out5, cache5 = max_pool_forward(out4, pool_param)
-
-        out6, cache6 = relu_forward(out4)
+        out3, cache3 = relu_forward(out2)
         
-        scores, cache7 = fc_forward(out6, W3, b3)
+        scores, cache4 = fc_forward(out3, W2, b2)
         
         #######################################################################
         #                             END OF YOUR CODE                        #
@@ -104,13 +91,9 @@ class ConvNet(object):
         #######################################################################
         loss, dscores = softmax_loss(scores, y)
 
-        dout6, dW3, db3 = fc_backward(dscores, cache7)
+        dout3, dW2, db2 = fc_backward(dscores, cache4)
         
-        dout5 = relu_backward(dout6, cache6)
-
-        # dout4 = max_pool_backward(dout5, cache5)
-
-        dout2, dW2, db2 = conv_backward(dout5, cache4)
+        dout2 = relu_backward(dout3, cache3)
         
         dout1 = max_pool_backward(dout2, cache2)
         
@@ -118,10 +101,8 @@ class ConvNet(object):
         
         grads['W1'] = dW1
         grads['W2'] = dW2
-        grads['W3'] = dW3
         grads['b1'] = db1
         grads['b2'] = db2
-        grads['b3'] = db3
 
         #######################################################################
         #                             END OF YOUR CODE                        #
