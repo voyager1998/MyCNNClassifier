@@ -31,18 +31,21 @@ class ConvNet(object):
         # Conv1
         self.params['W1'] = np.random.randn(6, C, 5, 5) * 0.01
         self.params['b1'] = np.zeros(6)
-        # Max pooling, output: N * 6 * H/2  * W/2
 
         # Conv2
         self.params['W2'] = np.random.randn(16, C, 5, 5) * 0.001
-        self.params['b2'] = np.zeros(16) # output: N * 16 * H/2  * W/2
-        # Max pooling, output: N * 16 * H/4  * W/4
+        self.params['b2'] = np.zeros(16) # output: N * 16 * H * W
 
-        # relu
         # fc1
-        D = int(16 * H/4  * W/4)
-        self.params['W3'] = np.random.randn(D, num_classes) * 0.01
-        self.params['b3'] = np.zeros(num_classes)
+        D = int(16 * H * W)
+        self.params['W3'] = np.random.randn(D, 128) * 0.01
+        self.params['b3'] = np.zeros(128)
+
+        # fc2
+        D = 128
+        self.params['W4'] = np.random.randn(D, num_classes) * 0.01
+        self.params['b4'] = np.zeros(num_classes)
+
 
         #######################################################################
         #                         END OF YOUR CODE                            #
@@ -61,6 +64,7 @@ class ConvNet(object):
         W1, b1 = self.params['W1'], self.params['b1']
         W2, b2 = self.params['W2'], self.params['b2']
         W3, b3 = self.params['W3'], self.params['b3']
+        W4, b4 = self.params['W4'], self.params['b4']
 
         #######################################################################
         # TODO: Implement the forward pass for the convolutional neural net,  #
@@ -72,22 +76,30 @@ class ConvNet(object):
         conv_param = {'stride': 1, 'pad': (filter_size - 1) // 2}
         out1, cache1 = conv_forward(X, W1, b1, conv_param)
 
-        # Max pooling, output: N * 6 * H/2  * W/2
-        pool_param = {'pool_height': 2, 'pool_width': 2, 'stride': 2}
-        out2, cache2 = max_pool_forward(out1, pool_param)
+        # # Max pooling, output: N * 6 * H/2  * W/2
+        # pool_param = {'pool_height': 2, 'pool_width': 2, 'stride': 2}
+        # out2, cache2 = max_pool_forward(out1, pool_param)
         
+        # out2, cache2 = relu_forward(out1)
+
         # Conv2
         filter_size = W2.shape[2]
         conv_param = {'stride': 1, 'pad': (filter_size - 1) // 2}
-        out4, cache4 = conv_forward(out2, W2, b2, conv_param)
+        out4, cache4 = conv_forward(out1, W2, b2, conv_param)
 
-        # Max pooling, output: N * 16 * H/4  * W/4
-        pool_param = {'pool_height': 2, 'pool_width': 2, 'stride': 2}
-        out5, cache5 = max_pool_forward(out4, pool_param)
+        # out5, cache5 = relu_forward(out4)
 
-        out6, cache6 = relu_forward(out5)
+        # # Max pooling, output: N * 16 * H/4  * W/4
+        # pool_param = {'pool_height': 2, 'pool_width': 2, 'stride': 2}
+        # out5, cache5 = max_pool_forward(out4, pool_param)
         
-        scores, cache7 = fc_forward(out6, W3, b3)
+        out6, cache6 = fc_forward(out4, W3, b3)
+
+        # out7, cache7 = relu_forward(out6)
+
+        scores, cache8 = fc_forward(out6, W4, b4)
+
+        # scores, cache9 = relu_forward(out8)
         
         #######################################################################
         #                             END OF YOUR CODE                        #
@@ -104,24 +116,30 @@ class ConvNet(object):
         #######################################################################
         loss, dscores = softmax_loss(scores, y)
 
-        dout6, dW3, db3 = fc_backward(dscores, cache7)
+        # dout8 = relu_backward(dscores, cache9)
         
-        dout5 = relu_backward(dout6, cache6)
-
-        dout4 = max_pool_backward(dout5, cache5)
-
-        dout2, dW2, db2 = conv_backward(dout4, cache4)
+        dout6, dW4, db4 = fc_backward(dscores, cache8)
         
-        dout1 = max_pool_backward(dout2, cache2)
+        # dout6 = relu_backward(dout7, cache7)
+
+        dout4, dW3, db3 = fc_backward(dout6, cache6)
+
+        # dout4 = relu_backward(dout5, cache5)
+
+        dout1, dW2, db2 = conv_backward(dout4, cache4)
+        
+        # dout1 = relu_backward(dout2, cache2)
         
         dX, dW1, db1 = conv_backward(dout1, cache1)
         
         grads['W1'] = dW1
         grads['W2'] = dW2
         grads['W3'] = dW3
+        grads['W4'] = dW4
         grads['b1'] = db1
         grads['b2'] = db2
         grads['b3'] = db3
+        grads['b4'] = db4
 
         #######################################################################
         #                             END OF YOUR CODE                        #

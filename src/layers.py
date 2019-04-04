@@ -57,11 +57,12 @@ def fc_backward(dout, cache):
     x, w, b = cache
     dx, dw, db = x, w, b
     N = x.shape[0]
-    x = np.reshape(x, (N, -1)) # out: N * D
     ###########################################################################
     # Implement the affine backward pass.                               #
     ###########################################################################
     dx = np.matmul(dout, np.transpose(w))
+    dx = np.reshape(dx, x.shape)
+    x = np.reshape(x, (N, -1)) # out: N * D
     dw = np.matmul(np.transpose(x), dout)
     db = np.sum(dout, axis=0)
     ###########################################################################
