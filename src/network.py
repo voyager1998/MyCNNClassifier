@@ -36,7 +36,8 @@ class ConvNet(object):
         # self.params['b2'] = np.zeros(16)
 
         # fc1
-        temp = int(6 * H * W)
+        # temp = int(6 * H * W)
+        temp = int(6 * H / 2 * W / 2)
         self.params['W2'] = np.random.randn(temp, num_classes) * 0.01
         self.params['b2'] = np.zeros(num_classes)
 
@@ -67,10 +68,10 @@ class ConvNet(object):
         out1, cache1 = conv_forward(X, W1, b1, conv_param)
         # print("out1 = ", out1[0])
         
-        # pool_param = {'pool_height': 2, 'pool_width': 2, 'stride': 2}
-        # out2, cache2 = max_pool_forward(out1, pool_param)
+        pool_param = {'pool_height': 2, 'pool_width': 2, 'stride': 2}
+        out2, cache2 = max_pool_forward(out1, pool_param)
         
-        out3, cache3 = relu_forward(out1)
+        out3, cache3 = relu_forward(out2)
         # print("out3 = ", out3[0])
         
         scores, cache4 = fc_forward(out3, W2, b2)
@@ -93,9 +94,9 @@ class ConvNet(object):
 
         dout3, dW2, db2 = fc_backward(dscores, cache4)
         
-        dout1 = relu_backward(dout3, cache3)
+        dout2 = relu_backward(dout3, cache3)
         
-        # dout1 = max_pool_backward(dout2, cache2)
+        dout1 = max_pool_backward(dout2, cache2)
         
         dX, dW1, db1 = conv_backward(dout1, cache1)
         
