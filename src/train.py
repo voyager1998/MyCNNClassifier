@@ -3,9 +3,9 @@ from sklearn.datasets import fetch_openml
 import os
 import pickle
 
-from network import ConvNet
+# from network import ConvNet
 # from conv_2_network import ConvNet
-# from conv_1_network_80 import ConvNet
+from conv_1_network_80 import ConvNet
 
 from solver import Solver
 
@@ -67,9 +67,9 @@ def train():
     # intialize solver
     print("initialize solver")
     solver = Solver(model, data, update_rule='sgd',
-                    optim_config={'learning_rate': 1e-3},
+                    optim_config={'learning_rate': 1e-2},
                     lr_decay=1.0, num_epochs=10,
-                    batch_size=16, print_every=1)
+                    batch_size=64, print_every=1)
 
     # start training
     print("start training")    
